@@ -8,7 +8,7 @@ mod app {
     use nrf52840_hal::{
         clocks::HFCLK_FREQ,
         gpio::{p0::Parts as P0Parts, p1::Parts as P1Parts, Level},
-        pac::{SPIM3, TIMER0, TWIM0},
+        pac::{SPIM3, TIMER0, TIMER1, TWIM0},
         spim::{self, Spim},
         timer::OneShot,
         twim, Timer, Twim,
@@ -26,7 +26,7 @@ mod app {
         buzzer: Buzzer,
         sensor: SCD30<TWIM0>,
         timer: Timer<TIMER0, OneShot>,
-        display: Display<Spim<SPIM3>>,
+        display: Display<Spim<SPIM3>, Timer<TIMER1, OneShot>>,
     }
 
     #[init]
@@ -84,14 +84,14 @@ mod app {
             0,
         );
 
-        let mut delay = Timer::new(board.TIMER1);
+        let delay = Timer::new(board.TIMER1);
         let display = Display::new(
             spi,
             pins_1.p1_03.degrade(),
             pins_1.p1_06.degrade(),
             pins_1.p1_04.degrade(),
             pins_1.p1_05.degrade(),
-            &mut delay,
+            delay,
         );
 
         read::spawn().unwrap();
