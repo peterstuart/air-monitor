@@ -1,19 +1,16 @@
+use crate::scd30;
 use arrayvec::ArrayString;
 use core::fmt::{self, Write as _};
 use embedded_graphics::{
-    egtext,
-    fonts::{Font12x16, Font24x32, Text},
     geometry::Point,
+    mono_font::{ascii::FONT_10X20, MonoFont, MonoTextStyle},
     pixelcolor::BinaryColor,
     prelude::*,
-    style::TextStyle,
-    text_style,
+    text::Text,
 };
 use embedded_hal::blocking::{delay::DelayMs, spi::Write};
 use epd_waveshare::{epd4in2::*, graphics::Display as _, prelude::*};
 use nrf52840_hal::gpio::{Floating, Input, Level, Output, Pin, PushPull};
-
-use crate::scd30;
 
 const LABEL_X: i32 = 20;
 const VALUE_X: i32 = 220;
@@ -26,50 +23,51 @@ const CO2_LABEL: &str = "Carbon Dioxide:";
 const CO2_UNIT: &str = " ppm";
 
 const TEMPERATURE_LABEL: &str = "Temperature:";
-const TEMP_UNIT: &str = "°F";
+const TEMP_UNIT: &str = " F";
 
 const HUMIDITY_LABEL: &str = "Humidity:";
 const HUMIDITY_UNIT: &str = "%";
 
-type Epd<Spi> = EPD4in2<
+type Epd<Spi, Delay> = Epd4in2<
     Spi,
     Pin<Output<PushPull>>,
     Pin<Input<Floating>>,
     Pin<Output<PushPull>>,
     Pin<Output<PushPull>>,
+    Delay,
 >;
 
-pub struct Display<Spi> {
+pub struct Display<Spi, Delay> {
     spi: Spi,
-    epd: Epd<Spi>,
+    delay: Delay,
+    epd: Epd<Spi, Delay>,
     display: Display4in2,
 }
 
-impl<Spi> Display<Spi>
+impl<Spi, Delay> Display<Spi, Delay>
 where
     Spi: Write<u8>,
     Spi::Error: fmt::Debug,
+    Delay: DelayMs<u8>,
 {
-    pub fn new<CsMode, BusyMode, DcMode, RstMode, Delay>(
+    pub fn new<CsMode, BusyMode, DcMode, RstMode>(
         mut spi: Spi,
         cs: Pin<CsMode>,
         busy: Pin<BusyMode>,
         dc: Pin<DcMode>,
         rst: Pin<RstMode>,
-        delay: &mut Delay,
-    ) -> Self
-    where
-        Delay: DelayMs<u8>,
-    {
+        mut delay: Delay,
+    ) -> Self {
         let cs = cs.into_push_pull_output(Level::Low);
         let dc = dc.into_push_pull_output(Level::Low);
         let rst = rst.into_push_pull_output(Level::Low);
         let busy = busy.into_floating_input();
 
-        let epd = EPD4in2::new(&mut spi, cs, busy, dc, rst, delay).unwrap();
+        let epd = Epd4in2::new(&mut spi, cs, busy, dc, rst, &mut delay).unwrap();
 
         Self {
             spi,
+            delay,
             epd,
             display: Display4in2::default(),
         }
@@ -78,14 +76,17 @@ where
     pub fn draw(&mut self, data: scd30::Data) {
         self.display.clear(BinaryColor::Off).unwrap();
 
-        let title = Text::new(AIR_QUALITY_LABEL, Point::new(LABEL_X, Y_ORIGIN))
-            .into_styled(TextStyle::new(Font24x32, BinaryColor::On));
-        let bottom = title.bottom_right().y;
+        let title = Text::new(
+            AIR_QUALITY_LABEL,
+            Point::new(LABEL_X, Y_ORIGIN),
+            MonoTextStyle::new(&FONT_10X20, BinaryColor::On),
+        );
+        let bottom = title.bounding_box().bottom_right().unwrap().y;
         title.draw(&mut self.display).unwrap();
 
         self.draw_labels_and_values(
             bottom + 32,
-            Font12x16,
+            &FONT_10X20,
             &[
                 (CO2_LABEL, data.co2, CO2_UNIT),
                 (
@@ -98,22 +99,19 @@ where
         );
 
         self.epd
-            .update_frame(&mut self.spi, self.display.buffer())
+            .update_frame(&mut self.spi, self.display.buffer(), &mut self.delay)
             .unwrap();
         self.epd
-            .display_frame(&mut self.spi)
+            .display_frame(&mut self.spi, &mut self.delay)
             .expect("display frame new graphics");
     }
 
-    fn draw_labels_and_values<F>(
+    fn draw_labels_and_values(
         &mut self,
         y: i32,
-        font: F,
+        font: &MonoFont,
         labels_and_values: &[(&str, f32, &str)],
-    ) -> i32
-    where
-        F: Copy + Font,
-    {
+    ) -> i32 {
         let mut y = y;
 
         for (label, value, unit) in labels_and_values {
@@ -123,33 +121,33 @@ where
         y
     }
 
-    fn draw_label_and_value<F>(
+    fn draw_label_and_value(
         &mut self,
         label: &str,
         value: f32,
         unit: &str,
         y: i32,
-        font: F,
-    ) -> i32
-    where
-        F: Copy + Font,
-    {
-        let text = Text::new(label, Point::new(LABEL_X, y))
-            .into_styled(TextStyle::new(font, BinaryColor::On));
+        font: &MonoFont,
+    ) -> i32 {
+        let label_text = Text::new(
+            label,
+            Point::new(LABEL_X, y),
+            MonoTextStyle::new(font, BinaryColor::On),
+        );
 
-        let top = text.top_left().y;
-        let bottom = text.bottom_right().y;
+        let top = label_text.bounding_box().top_left.y;
+        let bottom = label_text.bounding_box().bottom_right().unwrap().y;
         let height = bottom - top;
 
-        text.draw(&mut self.display).unwrap();
+        label_text.draw(&mut self.display).unwrap();
 
         let mut buf = ArrayString::<[_; 12]>::new();
         write!(&mut buf, "{:.0}{}", value, unit).expect("Failed to write to buffer");
 
-        egtext!(
-            text = &buf,
-            top_left = (VALUE_X, y),
-            style = text_style!(font = Font12x16, text_color = BinaryColor::On)
+        Text::new(
+            &buf,
+            Point::new(VALUE_X, y),
+            MonoTextStyle::new(font, BinaryColor::On),
         )
         .draw(&mut self.display)
         .unwrap();
