@@ -3,7 +3,7 @@ use arrayvec::ArrayString;
 use core::fmt::{self, Write as _};
 use embedded_graphics::{
     geometry::Point,
-    mono_font::{ascii::FONT_10X20, MonoFont, MonoTextStyle},
+    mono_font::{MonoFont, MonoTextStyle},
     pixelcolor::BinaryColor,
     prelude::*,
     text::Text,
@@ -11,11 +11,12 @@ use embedded_graphics::{
 use embedded_hal::blocking::{delay::DelayMs, spi::Write};
 use epd_waveshare::{epd4in2::*, graphics::Display as _, prelude::*};
 use nrf52840_hal::gpio::{Floating, Input, Level, Output, Pin, PushPull};
+use profont::{PROFONT_18_POINT, PROFONT_24_POINT};
 
 const LABEL_X: i32 = 20;
 const VALUE_X: i32 = 220;
 
-const Y_ORIGIN: i32 = 30;
+const Y_ORIGIN: i32 = 50;
 
 const AIR_QUALITY_LABEL: &str = "Air Quality:";
 
@@ -23,7 +24,7 @@ const CO2_LABEL: &str = "Carbon Dioxide:";
 const CO2_UNIT: &str = " ppm";
 
 const TEMPERATURE_LABEL: &str = "Temperature:";
-const TEMP_UNIT: &str = " F";
+const TEMP_UNIT: &str = "°F";
 
 const HUMIDITY_LABEL: &str = "Humidity:";
 const HUMIDITY_UNIT: &str = "%";
@@ -79,14 +80,14 @@ where
         let title = Text::new(
             AIR_QUALITY_LABEL,
             Point::new(LABEL_X, Y_ORIGIN),
-            MonoTextStyle::new(&FONT_10X20, BinaryColor::On),
+            MonoTextStyle::new(&PROFONT_24_POINT, BinaryColor::On),
         );
         let bottom = title.bounding_box().bottom_right().unwrap().y;
         title.draw(&mut self.display).unwrap();
 
         self.draw_labels_and_values(
             bottom + 32,
-            &FONT_10X20,
+            &PROFONT_18_POINT,
             &[
                 (CO2_LABEL, data.co2, CO2_UNIT),
                 (
