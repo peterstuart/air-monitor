@@ -22,7 +22,7 @@ mod app {
 
     #[local]
     struct Local {
-        led_state: RgbLed,
+        led: RgbLed,
         buzzer: Buzzer,
         sensor: SCD30<TWIM0>,
         timer: Timer<TIMER0, OneShot>,
@@ -43,7 +43,7 @@ mod app {
         let timer = Timer::new(board.TIMER0);
 
         // LED
-        let led_state = RgbLed::new(
+        let led = RgbLed::new(
             pins.p0_03.degrade(),
             pins.p0_04.degrade(),
             pins.p0_28.degrade(),
@@ -99,7 +99,7 @@ mod app {
         (
             Shared {},
             Local {
-                led_state,
+                led,
                 buzzer,
                 sensor,
                 timer,
@@ -109,9 +109,9 @@ mod app {
         )
     }
 
-    #[task(priority = 1, local = [led_state, sensor, display])]
+    #[task(priority = 1, local = [led, sensor, display])]
     fn read(context: read::Context) {
-        let led_state = context.local.led_state;
+        let led_state = context.local.led;
 
         if let Some(data) = context.local.sensor.read_measurement().unwrap() {
             defmt::info!("{}", data);
