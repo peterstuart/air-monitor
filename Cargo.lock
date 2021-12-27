@@ -160,7 +160,7 @@ dependencies = [
  "cortex-m-rtic-macros",
  "heapless",
  "rtic-core",
- "rtic-monotonic",
+ "rtic-monotonic 0.1.0-rc.2",
  "version_check",
 ]
 
@@ -259,13 +259,13 @@ dependencies = [
 
 [[package]]
 name = "dwt-systick-monotonic"
-version = "0.1.0-rc.2"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e50b3e2db61ad645f3171ed9c64f92cf11ae0fd5ace1b66b7cf1a4014b51c691"
+checksum = "d51defa1e02b32ded3e28e15fc90e19216de08e2127a6fa15e19081836d6f13e"
 dependencies = [
  "cortex-m",
  "fugit",
- "rtic-monotonic",
+ "rtic-monotonic 1.0.0",
 ]
 
 [[package]]
@@ -617,6 +617,12 @@ name = "rtic-monotonic"
 version = "0.1.0-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7e019d674efea87f510f6857e8a381cab2781b415d37d34564440d902eb6c946"
+
+[[package]]
+name = "rtic-monotonic"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb8b0b822d1a366470b9cea83a1d4e788392db763539dc4ba022bcc787fece82"
 
 [[package]]
 name = "rtic-syntax"
