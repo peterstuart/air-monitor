@@ -546,9 +546,9 @@ dependencies = [
 
 [[package]]
 name = "profont"
-version = "0.5.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eec6ccbe5cbbbdb18822a3e5b36a5e42bc9a3df0874ae0cfbf7abef285e9c2e0"
+checksum = "bd908932b251e9f146130df7566e8f7c5b0c6ddb29f6d67571f3579f59043c36"
 dependencies = [
  "embedded-graphics",
 ]
