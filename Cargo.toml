@@ -20,7 +20,7 @@ embedded-graphics = "0.7.1"
 embedded-hal = "0.2.7"
 epd-waveshare = "0.5.0"
 nb = "1.0.0"
-nrf52840-hal = "0.14.1"
+nrf52840-hal = "0.15.1"
 panic-probe = { version = "0.3.0", features = ["print-defmt"] }
 profont = "0.5.0"
 
