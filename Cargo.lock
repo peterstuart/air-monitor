@@ -44,7 +44,7 @@ version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e686d748538a32325b28d6411dd8a939e7ad5128e5d0023cc4fd3573db456042"
 dependencies = [
- "critical-section",
+ "critical-section 0.2.5",
  "riscv-target",
 ]
 
@@ -196,6 +196,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "critical-section"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6548a0ad5d2549e111e1f6a11a6c2e2d00ce6a3dafe22948d67c2b443f775e52"
+
+[[package]]
 name = "defmt"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -270,9 +276,9 @@ dependencies = [
 
 [[package]]
 name = "embedded-dma"
-version = "0.1.2"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46c8c02e4347a0267ca60813c952017f4c5948c232474c6010a381a337f1bda4"
+checksum = "994f7e5b5cb23521c22304927195f236813053eb9c065dd2226a32ba64695446"
 dependencies = [
  "stable_deref_trait",
 ]
@@ -312,9 +318,9 @@ dependencies = [
 
 [[package]]
 name = "embedded-storage"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "723dce4e9f25b6e6c5f35628e144794e5b459216ed7da97b7c4b66cdb3fa82ca"
+checksum = "156d7a2fdd98ebbf9ae579cbceca3058cff946e13f8e17b90e3511db0508c723"
 
 [[package]]
 name = "epd-waveshare"
@@ -441,9 +447,9 @@ checksum = "546c37ac5d9e56f55e73b677106873d9d9f5190605e41a856503623648488cae"
 
 [[package]]
 name = "nrf-hal-common"
-version = "0.14.1"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd37b3fd039327b4005cc0d4ef20bce0a41bf521071774d5adb854e4b1230639"
+checksum = "cd244c63d588066d75cffdcae8a03299fd5fb272e36bdde4a9f922f3e4bc6e4b"
 dependencies = [
  "cast",
  "cfg-if",
@@ -461,20 +467,21 @@ dependencies = [
 
 [[package]]
 name = "nrf-usbd"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "945a178131ac5f69941dadb0d51c8e17cbe34cc09a0e2d51c099160a463751b8"
+checksum = "66b2907c0b3ec4d264981c1fc5a2321d51c463d5a63d386e573f00e84d5495e6"
 dependencies = [
  "cortex-m",
+ "critical-section 1.1.1",
  "usb-device",
  "vcell",
 ]
 
 [[package]]
 name = "nrf52840-hal"
-version = "0.14.1"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6014bf78354527b06ac5181f8072be98579f97f3d58756b3a3aa858676dac68"
+checksum = "b54757ec98f38331889d1d6c535edb5dd543c762751abfe507f2d644b30f6d4f"
 dependencies = [
  "embedded-hal",
  "nrf-hal-common",
@@ -483,9 +490,9 @@ dependencies = [
 
 [[package]]
 name = "nrf52840-pac"
-version = "0.10.1"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "209c71d29ce1c0e9249b59ffff1ff5035c68b65070bf4c1315767fa4c93103ac"
+checksum = "30713f36f1be02e5bc9abefa30eae4a1f943d810f199d4923d3ad062d1be1b3d"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
